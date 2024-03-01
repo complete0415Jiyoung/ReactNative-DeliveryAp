@@ -1,118 +1,101 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import * as React from 'react';
+import {NavigationContainer, ParamListBase} from '@react-navigation/native';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
+import {
   Text,
-  useColorScheme,
   View,
+  Pressable, Button, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback
 } from 'react-native';
+import {useCallback} from 'react';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+/** TypeScript란?
+ *  : 매개 변수, 리턴값 , 변수에 타입을 정해두는 것 을 의미
+ *  [장점] 에러에 대한 대처가 유용함,  
+ * */ 
+type RootStackParamList = {
+  Home: undefined;
+  Details: undefined;
+};
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type DetailsScreenProps = NativeStackScreenProps<ParamListBase, 'Details'>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function HomeScreen({navigation, route}: HomeScreenProps) {
+  const onClick = useCallback(() => {
+    navigation.navigate('Details');
+  }, [navigation]);
+  
+  /*** SafeAreaView
+   * - react-navigation에서 알아서 제공해줌 ^^
+   * - 핸드폰 디바이스 숨겨진 부분을 제외하고 화면이 깨지지 않도록 보호
+   *** View 
+   * - flexDirection: 'row' 가로로 바꾸기
+   * - disply 같음 
+   * - flex 속성: 형제끼리 부모 컴포넌트안에서의 비율을 지정함 
+   *******************************************************
+   *** 버튼-> onClick이 아니라 onPress
+   * Pressable: 다양한 터치효과를 커스터마이징이 가능
+   * Button: 간단한 터치기능의 기본적인 스타일 
+   * TouchableHighlight: 기본 Hover 검정색이지만 'underlayColor'속성으로 색 변경가능
+   * TouchableOpacity: 기본 Hover 흐릿 
+   * TouchableWithoutFeedback: 효과 없이 터치 이벤트 만 
+   * TouchableNativeFeedback : 안드로이드에서 사용가능한 터치백  
+   */
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={{flexDirection: 'row'}}>
+      <View style={{ flex: 5, backgroundColor:'pink', alignItems: 'flex-end', justifyContent: 'center'}}>
+        {/* <TouchableHighlight underlayColor='gray' onPress={onClick}> */}
+        <Pressable onPress={onClick}
+        style={{
+          // padding:20,
+          paddingHorizontal: 40, // 좌우
+          paddingVertical: 20, // 상하
+          backgroundColor: 'blue'
+        }}>
+          <Text style={{color:'white'}}>Home Screen</Text>
+        </Pressable>  
+        {/* </TouchableHighlight> */}
+      </View>
+      <View style={{flex:2, backgroundColor:'purple'}}>
+        <Text style={{color:'white'}}>Second</Text>
+      </View>
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+function DetailsScreen({navigation}: DetailsScreenProps) {
+  const onClick = useCallback(() => {
+    navigation.navigate('Home');
+  }, [navigation]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <TouchableHighlight onPress={onClick}>
+        <Text>Details Screen</Text>
+      </TouchableHighlight>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const Stack = createNativeStackNavigator<RootStackParamList>();
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{title: '홈화면'}}
+        />
+        <Stack.Screen name="Details" component={DetailsScreen}>
+          {/* {props => <DetailsScreen {...props} />} */}
+        </Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default App;
