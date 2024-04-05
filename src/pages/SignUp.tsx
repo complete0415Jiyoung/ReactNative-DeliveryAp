@@ -70,7 +70,7 @@ function SignUp({navigation}: SignUpScreenProps) {
         // ? 'http://172.32.10.62:3105'
         // : '실서버주소'}/user`, 
         `${Config.API_URL}/user`,
-        {email, name, password, // hash화, 일반향 암호화
+        {email, name, password, // hash화, 일반향 암호화 
       },{
         headers:{ // 서버로 보내는 요청에 대한 추가 정보 -  예) 로그인한 상태인지 아닌지 식별해 줄수 있는 부가 정보  
           token:'고유한 값', 

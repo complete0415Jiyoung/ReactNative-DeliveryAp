@@ -9,6 +9,8 @@ import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import { useSelector } from 'react-redux';
 import { RootState } from './src/store/reducer';
+import useSocket from './src/hock/useSocket';
+import {useEffect} from 'react'
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -28,6 +30,37 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function AppInner() {
 
   const isLoggedIn = useSelector((state: RootState) => !!state.user.email);
+  const [socket, disconnect] = useSocket();
+
+  // 키, 값
+  // 'hello','world'
+  // 'userInfo', {name:'jilong', brith: 1997}
+  // 'order', {orderId: '1312s', price: 9000, latitude: 37.5, longitude: 127.5 }
+
+  useEffect(() => {
+    const helloCallback = (data: any) => {
+      console.log('helloCallback', data);
+      console.log('error', data?.io?.error?.[0]);
+    };
+    if (socket && isLoggedIn) {
+      console.log(socket);
+      socket.emit('login', 'hello');// 서버에게 데이터 보내기
+      socket.on('hello', helloCallback); // 서버에게 데이터 받기 
+    }
+    return () => {
+      if (socket) {
+        socket.off('hello', helloCallback); // 데이터 그만 받기
+      }
+    };
+  }, [isLoggedIn, socket]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      console.log('!isLoggedIn', !isLoggedIn);
+      disconnect();
+    }
+  }, [isLoggedIn, disconnect]);
+
   return (
       <NavigationContainer>
         {isLoggedIn ? (
