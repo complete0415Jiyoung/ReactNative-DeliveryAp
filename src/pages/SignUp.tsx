@@ -36,7 +36,7 @@ function SignUp({navigation}: SignUpScreenProps) {
     setPassword(text.trim());
   }, []);
   const onSubmit = useCallback(async () => {
-    if (loading) {
+    if (loading) {// 요청 중일 떄 막기 한번 이상 제출 안되게 막을 수 있음!
       return;
     }
     if (!email || !email.trim()) {
@@ -65,19 +65,27 @@ function SignUp({navigation}: SignUpScreenProps) {
     try {
       setLoading(true); // 로딩 상태 true 
       console.log(Config.API_URL)
-      const response = await axios.post(`${Config.API_URL}/user`, {
-        email,
-        name,
-        password, // hash화, 일반향 암호화
-      });
+      const response = await axios.post(
+        // `${__DEV__ // 개발 모드 일 때 True
+        // ? 'http://172.32.10.62:3105'
+        // : '실서버주소'}/user`, 
+        `${Config.API_URL}/user`,
+        {email, name, password, // hash화, 일반향 암호화
+      },{
+        headers:{ // 서버로 보내는 요청에 대한 추가 정보 -  예) 로그인한 상태인지 아닌지 식별해 줄수 있는 부가 정보  
+          token:'고유한 값', 
+        }
+      }
+
+      ); // await 비동기로 기다림 
       console.log(response.data);
       Alert.alert('알림', '회원가입 되었습니다.');
       navigation.navigate('SignIn');
-    } catch (error) {
+    } catch (error) { // error 타입이 없어서 지정이 필요 
       const errorResponse = (error as AxiosError).response;
       console.error(errorResponse);
       if (errorResponse) {
-        Alert.alert('알림', error.Response.data.message);
+        Alert.alert('알림', errorResponse.data.message);
       }
     } finally {
       setLoading(false); // 로딩실패
@@ -145,7 +153,7 @@ function SignUp({navigation}: SignUpScreenProps) {
           }
           disabled={!canGoNext || loading}
           onPress={onSubmit}>
-          {loading ? (
+          {loading ? ( // UI 로 보여짐 
             <ActivityIndicator color="white" />
           ) : (
             <Text style={styles.loginButtonText}>회원가입</Text>
