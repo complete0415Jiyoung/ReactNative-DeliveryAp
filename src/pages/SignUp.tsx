@@ -63,7 +63,7 @@ function SignUp({navigation}: SignUpScreenProps) {
     }
     console.log(email, name, password);
     try {
-      setLoading(true);
+      setLoading(true); // 로딩 상태 true 
       console.log(Config.API_URL)
       const response = await axios.post(`${Config.API_URL}/user`, {
         email,
@@ -77,10 +77,10 @@ function SignUp({navigation}: SignUpScreenProps) {
       const errorResponse = (error as AxiosError).response;
       console.error(errorResponse);
       if (errorResponse) {
-        Alert.alert('알림', errorResponse.data.message);
+        Alert.alert('알림', error.Response.data.message);
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // 로딩실패
     }
   }, [loading, navigation, email, name, password]);
 
