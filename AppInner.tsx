@@ -17,6 +17,7 @@ import Config from 'react-native-config';
 import userSlice from './src/slices/user';
 import { useAppDispatch } from './src/store';
 import { Alert } from 'react-native';
+import orderSlice from './src/slices/order';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -46,6 +47,7 @@ function AppInner() {
   useEffect(() => {
     const callback = (data: any) => {
       console.log(data);
+      dispatch(orderSlice.actions.addOrder(data));  // 리듀서로 보내기 
     };
     if (socket && isLoggedIn) {
       socket.emit('acceptOrder', 'hello');// 서버 연결하기
@@ -64,7 +66,7 @@ function AppInner() {
       console.log('!isLoggedIn', !isLoggedIn);
       disconnect();
     }
-  }, [isLoggedIn, disconnect]);
+  }, [dispatch, isLoggedIn, disconnect]);
 
 
   // 앱 실행 시 토큰 있으면 로그인하는 코드 
@@ -96,6 +98,9 @@ function AppInner() {
         if((error as AxiosError).response?.data.code === 'expired'){
           Alert.alert('알림', '다시 로그인 해주세요.')
         }
+      } finally{
+        // TODO: 스플래시 스크린 없애기 
+
       }
     };
     getTokenAndRefresh();
